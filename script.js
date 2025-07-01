@@ -1,17 +1,45 @@
-const words = ["plant", "grape", "shine", "crane", "globe", "flame", "crown", "track", "spine", "brick"];
-const WORD = words[Math.floor(Math.random() * words.length)].toUpperCase();
-let currentRow = 0;
-let currentGuess = "";
-let isGameOver = false;
+/* ===== Wordle Clone – Final Version with Retry Button ===== */
 
-const board = document.getElementById("game-board");
-const message = document.getElementById("message");
+/* ---- Local word list ---- */
+const WORDS = [
+  "plant", "grape", "shine", "crane", "globe",
+  "flame", "crown", "track", "spine", "brick"
+];
 
+/* ---- DOM Elements ---- */
+const board     = document.getElementById("game-board");
+const message   = document.getElementById("message");
+const retryBtn  = document.getElementById("retry-btn");
+
+/* ---- Game State Variables ---- */
+let WORD, currentRow, currentGuess, isGameOver;
+
+/* ---- Pick a random word ---- */
+function newSecretWord() {
+  WORD = WORDS[Math.floor(Math.random() * WORDS.length)].toUpperCase();
+  console.log("Secret word:", WORD); // Optional: helpful during testing
+}
+
+/* ---- Start or Restart the Game ---- */
+function resetGame() {
+  board.innerHTML = "";
+  message.textContent = "";
+  retryBtn.style.display = "none";
+
+  currentRow = 0;
+  currentGuess = "";
+  isGameOver = false;
+
+  newSecretWord();
+  createBoard();
+}
+
+/* ---- Create 6x5 Tile Grid ---- */
 function createBoard() {
-  for (let i = 0; i < 6; i++) {
+  for (let r = 0; r < 6; r++) {
     const row = document.createElement("div");
     row.classList.add("row");
-    for (let j = 0; j < 5; j++) {
+    for (let c = 0; c < 5; c++) {
       const tile = document.createElement("div");
       tile.classList.add("tile");
       row.appendChild(tile);
@@ -20,79 +48,78 @@ function createBoard() {
   }
 }
 
+/* ---- Show Message ---- */
+function show(msg) {
+  message.textContent = msg;
+}
+
+/* ---- Update Tile Letters ---- */
+function updateTiles() {
+  const tiles = board.children[currentRow].children;
+  [...tiles].forEach((tile, i) => {
+    tile.textContent = currentGuess[i] ?? "";
+  });
+}
+
+/* ---- Apply Color to Tiles ---- */
+function colorTile(tile, state) {
+  tile.classList.add(state); // "correct", "present", "absent"
+  tile.style.borderColor = "transparent";
+}
+
+/* ---- Check User's Guess ---- */
+function checkGuess() {
+  const tiles = board.children[currentRow].children;
+
+  [...currentGuess].forEach((ch, i) => {
+    if (ch === WORD[i]) {
+      colorTile(tiles[i], "correct");
+    } else if (WORD.includes(ch)) {
+      colorTile(tiles[i], "present");
+    } else {
+      colorTile(tiles[i], "absent");
+    }
+  });
+
+  if (currentGuess === WORD) {
+    endGame("🎉 You guessed it!");
+  } else if (++currentRow === 6) {
+    endGame(`❌ Word was: ${WORD}`);
+  } else {
+    currentGuess = "";
+  }
+}
+
+/* ---- End the Game ---- */
+function endGame(msg) {
+  isGameOver = true;
+  show(msg);
+  retryBtn.style.display = "inline-block";
+}
+
+/* ---- Handle Key Presses ---- */
 document.addEventListener("keydown", (e) => {
   if (isGameOver) return;
+
   const key = e.key.toUpperCase();
 
   if (key === "ENTER") {
-    if (currentGuess.length < 5) {
-      showMessage("Not enough letters");
-      return;
-    }
+    if (currentGuess.length !== 5) return show("Not enough letters");
     checkGuess();
   } else if (key === "BACKSPACE") {
     currentGuess = currentGuess.slice(0, -1);
     updateTiles();
-  } else if (/^[A-Z]$/.test(key)) {
-    if (currentGuess.length < 5) {
-      currentGuess += key;
-      updateTiles();
-    }
+  } else if (/^[A-Z]$/.test(key) && currentGuess.length < 5) {
+    currentGuess += key;
+    updateTiles();
   }
 });
 
-function updateTiles() {
-  const rowTiles = board.children[currentRow].children;
-  for (let i = 0; i < 5; i++) {
-    rowTiles[i].textContent = currentGuess[i] || "";
-  }
-}
+/* ---- Retry Button ---- */
+retryBtn.addEventListener("click", resetGame);
 
-function checkGuess() {
-  const rowTiles = board.children[currentRow].children;
-  const guess = currentGuess;
-  let feedback = "";
+/* ---- Start the Game on Load ---- */
+resetGame();
 
-  for (let i = 0; i < 5; i++) {
-    const tile = rowTiles[i];
-    const letter = guess[i];
-    if (letter === WORD[i]) {
-      tile.classList.add("correct");
-      feedback += "🟩";
-    } else if (WORD.includes(letter)) {
-      tile.classList.add("present");
-      feedback += "🟨";
-    } else {
-      tile.classList.add("absent");
-      feedback += "⬛";
-    }
-  }
 
-  if (guess === WORD) {
-    showMessage("🎉 You guessed it!");
-    isGameOver = true;
-    showShare(feedback);
-  } else {
-    currentRow++;
-    currentGuess = "";
-    if (currentRow === 6) {
-      showMessage(`❌ Game Over! Word was: ${WORD}`);
-      isGameOver = true;
-      showShare(feedback);
-    }
-  }
-}
 
-function showMessage(msg) {
-  message.textContent = msg;
-}
-
-function showShare(feedback) {
-  setTimeout(() => {
-    const text = `Wordle Clone\n${feedback}`;
-    navigator.clipboard.writeText(text);
-    showMessage("Result copied to clipboard! 📋");
-  }, 1000);
-}
-
-createBoard();

@@ -2,16 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wordle Clone</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Wordle Clone</h1>
+  <h1>Wordle Clone</h1>
+
   <div id="game-board"></div>
-  <div id="keyboard"></div>
   <p id="message"></p>
+
+  <!-- NEW: hidden until the game ends -->
+  <button id="retry-btn" style="display:none;">🔄 Retry</button>
 
   <script src="script.js"></script>
 </body>
 </html>
+
