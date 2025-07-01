@@ -43,3 +43,23 @@ body {
 .absent {
   background-color: #3a3a3c;
 }
+#keyboard {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.key {
+  display: inline-block;
+  margin: 3px;
+  padding: 12px 14px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  background-color: #ddd;
+  cursor: pointer;
+}
+
+.key:hover {
+  background-color: #bbb;
+}
