@@ -54,15 +54,31 @@ function createBoard() {
 }
 
 function createKeyboard() {
-  const keys = "QWERTYUIOPASDFGHJKLZXCVBNM←↵".split("");
-  keys.forEach((k) => {
-    const btn = document.createElement("button");
-    btn.textContent = k;
-    btn.className   = "key";
-    btn.addEventListener("click", () => handleKey(k));
-    kbArea.appendChild(btn);
+  const rows = [
+    "QWERTYUIOP",
+    "ASDFGHJKL",
+    "ZXCVBNM←↵"
+  ];
+
+  const keyboard = document.getElementById("keyboard");
+  keyboard.innerHTML = "";
+
+  rows.forEach(row => {
+    const rowDiv = document.createElement("div");
+    rowDiv.className = "keyboard-row";
+
+    row.split("").forEach(key => {
+      const btn = document.createElement("button");
+      btn.textContent = key;
+      btn.className = "key";
+      btn.addEventListener("click", () => handleKey(key));
+      rowDiv.appendChild(btn);
+    });
+
+    keyboard.appendChild(rowDiv);
   });
 }
+
 
 function show(msg) { message.textContent = msg; }
 
